@@ -35,6 +35,24 @@ def parse_dict():
 
 d = parse_dict()
 
+def parse_symbols():
+    symbols = {}
+    dirname = os.path.dirname(__file__)
+    filename = os.path.join(dirname, 'ch_symbols.csv')
+    with open(filename, encoding='utf-8') as file:
+        text = file.read()
+        lines = text.split('\n')
+        for line in lines:
+            if line:
+                parts = line.split(',')
+                symbols[parts[0]] = parts[1]
+    return symbols
+symbols = parse_symbols()
+
+def convert_pinyin(pinyin):
+    p = pinyin.split()
+    return " ".join([symbols[q] if q in symbols else q for q in p])
+
 def testFunction(changed: bool, note: notes.Note, current_field_idx: int) -> bool:
     # get the number of cards in the current collection, which is stored in
     # the main window
@@ -53,7 +71,7 @@ def testFunction(changed: bool, note: notes.Note, current_field_idx: int) -> boo
             if not note["Simplified"]:
                 note["Simplified"] = simpl
             if not note["Pinyin"]:
-                note["Pinyin"] = pinyin
+                note["Pinyin"] = convert_pinyin(pinyin)
             if not note["Meaning"]:
                 note["Meaning"] = ', '.join(definitions)
             # return true so the note can be reloaded
