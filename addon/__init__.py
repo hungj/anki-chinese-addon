@@ -26,7 +26,7 @@ def parse_dict():
     d = {}
     dirname = os.path.dirname(__file__)
     filename = os.path.join(dirname, 'cedict_ts.u8')
-    with open(filename) as file:
+    with open(filename, encoding='utf-8') as file:
         text = file.read()
         lines = text.split('\n')
         for line in lines:
