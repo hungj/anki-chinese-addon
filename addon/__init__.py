@@ -1,5 +1,5 @@
 # import the main window object (mw) from aqt
-from aqt import mw
+from aqt import gui_hooks, mw
 # import the "show info" tool from utils.py
 from aqt.utils import showInfo, qconnect
 # import all of the Qt GUI library
@@ -8,12 +8,15 @@ from aqt.qt import *
 # We're going to add a menu item below. First we want to create a function to
 # be called when the menu item is activated.
 
-def testFunction() -> None:
+def testFunction(changed, note, current_field_idx):
     # get the number of cards in the current collection, which is stored in
     # the main window
-    cardCount = mw.col.cardCount()
+    # cardCount = mw.col.cardCount()
     # show a message box
-    showInfo("Card count: %d" % cardCount)
+    showInfo(f"changed: {changed}, note: {note}, current_field_idx: {current_field_idx}")
+    return False
+
+gui_hooks.editor_did_unfocus_field.append(testFunction)
 
 # create a new menu item, "test"
 action = QAction("test", mw)
