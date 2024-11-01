@@ -52,8 +52,14 @@ def check_dupe(note: notes.Note) -> bool:
 def autofill(changed: bool, note: notes.Note, current_field_idx: int) -> bool:
     # changed is always False for some reason in anki
     if note.keys()[current_field_idx].lower() == 'hanzi':
-        if not check_dupe(note):
-            trad = note.values()[current_field_idx].strip()
+        print(note["Example sentence"])
+        trad = note.values()[current_field_idx].strip()
+        if len(trad) == 0:
+            note["Simplified"] = ""
+            note["Pinyin"] = ""
+            note["Meaning"] = ""
+            return True
+        elif not check_dupe(note):
             if trad in chinese_dict:
                 simpl = chinese_dict[trad]['simplified']
                 pinyin = chinese_dict[trad]['pinyin']
