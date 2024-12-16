@@ -49,10 +49,14 @@ def check_dupe(note: notes.Note) -> bool:
     status = note.fields_check()
     return status == NoteFieldsCheckResult.DUPLICATE
 
+def check_chinese_sentence(line):
+    chrs = sum([ord('A') <= ord(c) <= ord('Z') or ord('a') <= ord(c) <= ord('z') for c in line])
+    print("got chrs", chrs, "len", len(line)//2)
+    return chrs == 0
+
 def autofill(changed: bool, note: notes.Note, current_field_idx: int) -> bool:
     # changed is always False for some reason in anki
     if note.keys()[current_field_idx].lower() == 'hanzi':
-        print(note["Example sentence"])
         trad = note.values()[current_field_idx].strip()
         if len(trad) == 0:
             note["Simplified"] = ""
@@ -73,6 +77,20 @@ def autofill(changed: bool, note: notes.Note, current_field_idx: int) -> bool:
                     note["Meaning"] = ', '.join(definitions)
                 # return True so the note can be reloaded
                 return True
+    elif note.keys()[current_field_idx].lower() == 'example sentence':
+        print(note["Example sentence"])
+        content = note.values()[current_field_idx]
+        new_content = []
+        found_replacement = False
+        for line in content.split('<br>'):
+            if check_chinese_sentence(line):
+                new_content.append("".join(line.split()))
+                found_replacement = True
+            else:
+                new_content.append(line)
+        note['Example sentence'] = '<br>'.join(new_content)
+        print("got replacement", note['Example sentence'])
+        return found_replacement
     return False
 
 gui_hooks.editor_did_unfocus_field.append(autofill)
