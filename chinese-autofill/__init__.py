@@ -91,6 +91,15 @@ def autofill(changed: bool, note: notes.Note, current_field_idx: int) -> bool:
         note['Example sentence'] = '<br>'.join(new_content)
         print("got replacement", note['Example sentence'])
         return found_replacement
+    elif note.keys()[current_field_idx].lower() == 'part of speech':
+        print(note["Part of speech"])
+        pos = note.values()[current_field_idx]
+        if pos and pos.endswith("&nbsp;"):
+            note['Part of speech'] = pos.replace("&nbsp;", "")
+            print("got replace")
+            return True
+        else:
+            return False
     return False
 
 gui_hooks.editor_did_unfocus_field.append(autofill)
