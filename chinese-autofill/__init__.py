@@ -83,15 +83,14 @@ def autofill(changed: bool, note: notes.Note, current_field_idx: int) -> bool:
         new_content = ""
         found_replacement = False
         prev = False
-        for idx in range(len(content) - 1):
-            if not prev:
+        for idx in range(len(content)):
+            if not prev and (idx == len(content) - 1 or (idx != len(content) - 1 and not (content[idx] == ' ' and '\u4e00' <= content[idx + 1] <= '\u9fff'))):
                 new_content += content[idx]
-            if '\u4e00' <= content[idx] <= '\u9fff' and content[idx + 1] == ' ':
+            if idx != len(content) - 1 and '\u4e00' <= content[idx] <= '\u9fff' and content[idx + 1] == ' ':
                 prev = True
                 found_replacement = True
             else:
                 prev = False
-        new_content += content[-1]
         note['Example sentence'] = new_content
         print("got replacement", note['Example sentence'])
         return found_replacement
