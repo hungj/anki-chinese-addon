@@ -32,5 +32,6 @@ def add_frequency_info():
         if ii % _LOG_FREQ == 0:
             print(f"Processed {ii} / {card_count} cards ({'%.1f' % (float(ii) / card_count*100)}%)")
         mw.col.update_note(note)
+    print(f"Processed {ii} / {card_count} cards ({'%.1f' % (float(ii) / card_count * 100)}%)")
 
     showInfo('Changed %d cards.' % edit_count)
