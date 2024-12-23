@@ -3,16 +3,15 @@ from .chinese_dictionary import ChineseDictionary
 from .utils import *
 
 
+_LOG_FREQ = 100
 _chinese_dict = ChineseDictionary()
 def add_frequency_info():
-    cardCount = mw.col.cardCount()
     ii = 0
-    # ~ cards=mw.col.findCards('deck:"other"')
-    cards = mw.col.findCards('deck:"Chinese"')
-    showInfo('got %s cards.  it will take about 1 second for every 10 cards; just let it run.' % str(len(cards)))
-    editcount = 0
+    cards = mw.col.find_cards('deck:"Chinese"')
+    card_count = len(cards)
+    edit_count = 0
     for id in cards:
-        card = mw.col.getCard(id)
+        card = mw.col.get_card(id)
         note = card.note()
         if 'Frequency' not in note:
             showInfo('you need to add the Frequency field to one of your decks. %s' + repr(note.items()))
@@ -26,10 +25,12 @@ def add_frequency_info():
             if res:
                 permillion, frequency_html = res
                 permillion = str(permillion)
-                editcount += 1
+                edit_count += 1
                 # note['permillion'] = permillion
                 note['Frequency'] = frequency_html
         ii += 1
-        note.flush()
+        if ii % _LOG_FREQ == 0:
+            print(f"Processed {ii} / {card_count} cards ({'%.1f' % (float(ii) / card_count*100)}%)")
+        mw.col.update_note(note)
 
-    showInfo('changed %d cards.' % editcount)
+    showInfo('Changed %d cards.' % edit_count)

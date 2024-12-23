@@ -1,5 +1,5 @@
-import os
 from dataclasses import dataclass
+from .utils import get_resource_path
 
 
 @dataclass
@@ -25,8 +25,7 @@ class ChineseDictionary:
             d[trad] = ChineseWord(traditional=trad, simplified=simp, pinyin=pinyin, definitions=defs_list)
 
         d = {}
-        dirname = os.path.dirname(__file__)
-        filename = os.path.join(dirname, 'cedict_ts.u8')
+        filename = get_resource_path('cedict_ts.u8')
         with open(filename, encoding='utf-8') as file:
             text = file.read()
             lines = text.split('\n')

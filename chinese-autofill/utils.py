@@ -1,16 +1,19 @@
 import codecs
-import os
 import re
 
 from aqt.qt import *
 from aqt.utils import showInfo
+from .constants import *
 
+
+def get_resource_path(filename):
+    dirname = os.path.dirname(__file__)
+    return os.path.join(dirname, "resources", filename)
 
 def _parse_symbols():
     symbols = {}
-    dirname = os.path.dirname(__file__)
-    filename = os.path.join(dirname, 'ch_symbols.csv')
-    with open(filename, encoding='utf-8') as file:
+    path = get_resource_path('ch_symbols.csv')
+    with open(path, encoding='utf-8') as file:
         text = file.read()
         lines = text.split('\n')
         for line in lines:
@@ -40,19 +43,26 @@ def check_chinese_sentence(line):
     return chrs == 0
 
 # adapted from https://github.com/ernop/anki-chinese-word-frequency
-levels = {200: 'very basic',  # 1-477                    = 500                          cum 500
-          100: 'basic',  # 477-1016             = 500                          1000
-          50: 'very common',  # 1017-2060           = 1000                        2000
-          25: 'common',  # 2060-3760          = 1700                        3700
-          13: 'uncommon',  # 3760-6313           = 2600                        6300
-          7: 'rare',  # 6300-10050         = 3750                        10000
-          2: 'very rare',  # 10500-18600        = 8100                        18000
-          0: 'obscure'}  # 18600-50000       = 31400                      50000
-slevels = sorted(levels.items(), key=lambda x: x[0] * -1)
-words = sorted([w.upper() for w in levels.values()], key=lambda x: -1 * len(x))
+LEVELS = {200: Frequency.VERY_BASIC.value,  # 1-477                    = 500                          cum 500
+          100: Frequency.BASIC.value,  # 477-1016             = 500                          1000
+          50: Frequency.VERY_COMMON.value,  # 1017-2060           = 1000                        2000
+          25: Frequency.COMMON.value,  # 2060-3760          = 1700                        3700
+          13: Frequency.UNCOMMON.value,  # 3760-6313           = 2600                        6300
+          7: Frequency.RARE.value,  # 6300-10050         = 3750                        10000
+          2: Frequency.VERY_RARE.value,  # 10500-18600        = 8100                        18000
+          0: Frequency.OBSCURE.value}  # 18600-50000       = 31400                      50000
+COLORS = {Frequency.VERY_BASIC.value: "#07f50b",
+          Frequency.BASIC.value: "#02f55b",
+          Frequency.VERY_COMMON.value: "#00f090",
+          Frequency.COMMON.value: "#02f0b0",
+          Frequency.UNCOMMON.value: "#02a2f7",
+          Frequency.RARE.value: "#bb30f0",
+          Frequency.VERY_RARE.value: "#f0072a",
+          Frequency.OBSCURE.value: "#a8a7a7"}
+slevels = sorted(LEVELS.items(), key=lambda x: x[0] * -1)
+words = sorted([w.upper() for w in LEVELS.values()], key=lambda x: -1 * len(x))
 
-dirname = os.path.dirname(__file__)
-corpus_path = os.path.join(dirname, 'simplified-freqs.num')
+corpus_path = get_resource_path('simplified-freqs.num')
 
 if os.path.exists(corpus_path):
     blob = codecs.open(corpus_path, 'r', 'utf8').read()
@@ -70,25 +80,21 @@ def lookup_frequency(hanzi_simplified):
     try:
         res = pat.findall(blob)[0]
     except Exception:
-        # ~ showInfo('%s%s'%(repr(e),hanzi_simplified))
         # word did not exist in dict.
         return False
-    description = ''
     frequency_html = ''
     if res and type(res) != tuple:
-        order, permillion, chars = res.split()
+        _, permillion, chars = res.split()
         permillion = float(permillion)
         try:
             for num, name in slevels:
                 if permillion > num:
                     description = name.upper()
-                    frequency_html = name
+                    frequency_html = '<span style="color:%s">%s</span>' % (COLORS[name], name)
                     break
         except Exception:
-            # ~ showInfo(repr(e))
             return False
     else:
-        description = ''
         permillion = ''
         frequency_html = 'unknown'
     return (permillion, frequency_html)
