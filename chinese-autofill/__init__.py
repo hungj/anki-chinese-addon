@@ -80,15 +80,19 @@ def autofill(changed: bool, note: notes.Note, current_field_idx: int) -> bool:
     elif note.keys()[current_field_idx].lower() == 'example sentence':
         print(note["Example sentence"])
         content = note.values()[current_field_idx]
-        new_content = []
+        new_content = ""
         found_replacement = False
-        for line in content.split('<br>'):
-            if check_chinese_sentence(line):
-                new_content.append("".join(line.split()))
+        prev = False
+        for idx in range(len(content) - 1):
+            if not prev:
+                new_content += content[idx]
+            if '\u4e00' <= content[idx] <= '\u9fff' and content[idx + 1] == ' ':
+                prev = True
                 found_replacement = True
             else:
-                new_content.append(line)
-        note['Example sentence'] = '<br>'.join(new_content)
+                prev = False
+        new_content += content[-1]
+        note['Example sentence'] = new_content
         print("got replacement", note['Example sentence'])
         return found_replacement
     elif note.keys()[current_field_idx].lower() == 'part of speech':
