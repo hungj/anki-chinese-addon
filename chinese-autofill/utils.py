@@ -11,6 +11,12 @@ def get_resource_path(filename):
     return os.path.join(dirname, "resources", filename)
 
 def _parse_symbols():
+    """
+    Parse symbols file. Each line is a csv of pinyin (with optional number suffix) and pinyin with accent, e.g.
+    chu2,chú
+
+    Returns a dict of pinyin (with optional number suffix) -> pinyin (with accent).
+    """
     symbols = {}
     path = get_resource_path('ch_symbols.csv')
     with open(path, encoding='utf-8') as file:

@@ -14,6 +14,11 @@ class ChineseDictionary:
         self.chinese_dict = self._parse()
 
     def _parse(self):
+        """
+        Parse standard CC-CEDICT Chinese-English dictionary and store as a dict of Traditional (str) -> ChineseWord (obj).
+        Encoded as utf-8. Each line is formatted as:
+        Traditional Simplified [pin yin] /English Definition 1/English Definition 2/.../
+        """
         def parse_line(d, line):
             if line[0] == '#':
                 return
